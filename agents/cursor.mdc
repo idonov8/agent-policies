@@ -15,16 +15,20 @@ framework details, and domain conventions in that project's AGENTS.md.
 - Publish or deploy only when I explicitly request it. Creating or editing a
   website does not authorize hosting, uploads, or deployment.
 - Do not push or merge to a branch that triggers deployment without that
-  authorization. Skill defaults do not override this preference.
+  authorization, except when self-merging a small PR as allowed below. Skill
+  defaults do not override this preference.
 
 ## Workflow and commits
 
-- In my local checkout while I am present, leave changes uncommitted for review.
-  Commit only when I ask. If the working mode is unclear, do not commit.
+- Always open a PR when a feature or fix is finished, including when working
+  locally in my checkout. Work on a branch, not the default branch. Split
+  independent changes into separate PRs when that makes review easier.
 - During autonomous work in a cloud session or a separate worktree, commit one
   logical step at a time, with a message explaining what changed and why.
-- In a cloud session, open a PR when a feature is finished. Split independent
-  changes into separate PRs when that makes review easier.
+- In my local checkout while I am present, don't commit mid-task; when the work
+  is finished, commit it on a branch and open the PR.
+- If a PR is very small (under 20 changed lines) and you are confident in it,
+  merge it yourself once tests pass. Otherwise leave it for my review.
 - Preserve unrelated work already in the checkout.
 - Use judgment: explain problems with a request and suggest a practical correction.
 

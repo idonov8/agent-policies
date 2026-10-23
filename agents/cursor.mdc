@@ -30,7 +30,8 @@ framework details, and domain conventions in that project's AGENTS.md.
 - If a PR is very small (under 20 changed lines) and you are confident in it,
   merge it yourself once tests pass. Otherwise leave it for my review.
 - Preserve unrelated work already in the checkout.
-- Use judgment: explain problems with a request and suggest a practical correction.
+- Be critical of requests. If one doesn't make sense, stop and question it before
+  acting: explain the problem and suggest a practical correction.
 
 ## Comments and tests
 

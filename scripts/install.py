@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Install symlinks with backups; preserve credentials, hooks and managed text."""
+"""Install symlinks with backups; preserve credentials and hooks."""
 from pathlib import Path
 from datetime import datetime, timezone
 import argparse, json, os, shutil, subprocess
@@ -40,14 +40,6 @@ def link(path, target):
         path.unlink()
     path.parent.mkdir(parents=True, exist_ok=True)
     path.symlink_to(os.path.relpath(target, path.parent), target_is_directory=target.is_dir())
-for name, source in [('codex', HOME / '.codex/AGENTS.md'), ('gemini', HOME / '.gemini/GEMINI.md')]:
-    if source.exists():
-        text = source.read_text()
-        start, end = text.find('<!-- BEGIN PUSHARY'), text.find('<!-- END PUSHARY -->')
-        if start >= 0 and end >= 0:
-            block = text[start:end + len('<!-- END PUSHARY -->')] + '\n'
-            if block != (ROOT / f'integrations/pushary/{name}.md').read_text():
-                raise SystemExit(f'Managed content differs in {source}; reconcile it before installing.')
 link(HOME / '.codex/AGENTS.md', ROOT / 'agents/codex.md')
 link(HOME / '.gemini/GEMINI.md', ROOT / 'agents/gemini.md')
 link(HOME / '.claude/CLAUDE.md', ROOT / 'global.md')

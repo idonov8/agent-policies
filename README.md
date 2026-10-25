@@ -46,8 +46,8 @@ The installer links each agent's recognized instruction location to this checkou
 | `~/.cursor/rules/global.mdc` | `agents/cursor.mdc` |
 
 Claude reads the shared source directly, plus its model-specific rule. Codex and
-Gemini receive complete generated files, including the preserved Pushary
-instructions. Cursor receives a generated rule with `alwaysApply: true`.
+Gemini receive complete generated files. Cursor receives a generated rule with
+`alwaysApply: true`.
 The installer also enables Gemini discovery of `AGENTS.md` alongside `GEMINI.md`.
 
 Project instructions add commands, domain conventions, and exceptions. Keep them
@@ -97,8 +97,6 @@ The installer:
 - Archives an existing Claude rules directory intact, including its Git history.
 - Preserves Gemini's other settings, credentials, and hooks while adding
   `AGENTS.md` to its context filenames.
-- Refuses to install if an existing Codex or Gemini managed Pushary block differs
-  from the one preserved in this repository.
 
 It prints the backup path. `manifest.json` records which entries existed and where
 their originals were saved. Keep those backups outside Git. To restore, compare
@@ -178,20 +176,6 @@ add an explicit `@AGENTS.md` import instead. An import also suits collaborators
 who cannot use symlinks. A Markdown link saying “see AGENTS.md” is not the same as
 an explicit import.
 
-## Pushary and managed instructions
-
-`integrations/pushary/` preserves the existing app-managed instruction blocks.
-Do not rewrite their wording by hand. The renderer includes them unchanged in
-the Codex and Gemini entry points. Their presence does not install Pushary,
-configure its tools, or sign in to it; the app owns that setup separately.
-Credentials, hooks, and service configuration stay in local agent settings.
-
-If the Pushary app changes a managed block, rendering stops rather than replacing
-it with an older copy. Preserve the new block byte for byte in its matching
-integration source, review that update, then render again. If an app replaces an
-installed symlink with a regular file, compare the contents before reinstalling.
-Never overwrite newer managed instructions with an older repository copy.
-
 ## Repository layout
 
 ```text
@@ -199,9 +183,6 @@ agent-policies/
 ├── global.md                   # Shared policy: edit here
 ├── claude-rules/
 │   └── models.md               # Claude-specific model choices
-├── integrations/pushary/
-│   ├── codex.md                # Preserved managed instructions
-│   └── gemini.md
 ├── agents/                     # Generated; committed alongside sources
 │   ├── codex.md
 │   ├── gemini.md

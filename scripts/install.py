@@ -32,7 +32,7 @@ def link(path, target):
     save(path)
     if path.is_dir() and not path.is_symlink():
         # Keep an original Git checkout intact, including local-only commits.
-        archived = backup / ('original-' + path.name)
+        archived = backup / f'original-{len(manifest) - 1}-{path.name}'
         path.rename(archived)
         manifest[-1]['moved_to'] = str(archived)
         (backup / 'manifest.json').write_text(json.dumps(manifest, indent=2) + '\n')
@@ -45,6 +45,12 @@ link(HOME / '.gemini/GEMINI.md', ROOT / 'agents/gemini.md')
 link(HOME / '.claude/CLAUDE.md', ROOT / 'global.md')
 link(HOME / '.claude/rules', ROOT / 'claude-rules')
 link(HOME / '.cursor/rules/global.mdc', ROOT / 'agents/cursor.mdc')
+for skill_file in sorted((ROOT / 'skills').glob('*/SKILL.md')):
+    skill = skill_file.parent
+    if skill.name.startswith('.') or not skill_file.is_file():
+        continue
+    for directory in ('.agents/skills', '.claude/skills'):
+        link(HOME / directory / skill.name, skill)
 settings = HOME / '.gemini/settings.json'
 config = json.loads(settings.read_text()) if settings.exists() else {}
 context = config.setdefault('context', {})

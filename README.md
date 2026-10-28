@@ -182,9 +182,8 @@ Copy `skills/example-workflow/` to `skills/<skill-name>/`. Update the `name` and
 The description tells an agent when to select the skill. Keep standing rules in
 `global.md` and application-specific workflows in that application's repository.
 
-The included example only reports its loaded file path when asked to test
-`example-workflow`; it does not change files. In Codex, invoke it with
-`$example-workflow`; in Claude Code, use `/example-workflow`.
+Invoke a skill with `$<skill-name>` in Codex or `/<skill-name>` in Claude Code.
+Each skill's `SKILL.md` describes its workflow and when to use it.
 
 ```sh
 python3 scripts/render.py --check
@@ -233,9 +232,9 @@ agent-policies/
 │   ├── codex.md
 │   ├── gemini.md
 │   └── cursor.mdc
-├── skills/
-│   └── example-workflow/
-│       └── SKILL.md             # Starter personal skill
+├── skills/                     # Reusable personal workflows
+│   └── <skill-name>/
+│       └── SKILL.md             # Workflow instructions
 ├── scripts/
 │   ├── render.py               # Build entry points; --check detects drift
 │   └── install.py              # Back up existing entries and install links

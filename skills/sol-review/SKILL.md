@@ -1,0 +1,12 @@
+---
+name: sol-review
+description: Run when user asks for sol review.
+---
+
+# Sol review
+
+Run this workflow only when the user requests it. Ordinary PR work does not
+activate it.
+
+- Run a review by GPT-6.1 Sol for the PR. Address the comments it gives. You can run up to 3 rounds of review if needed. In the first one Sol looks over all the PR, later rounds only address your changes and responses.
+- Use Codex CLI or fleet to run the Sol agents.

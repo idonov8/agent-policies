@@ -10,6 +10,7 @@ This repository was previously named `claude-policies`; its Git history is retai
 | --- | --- |
 | Defaults for every agent and project | `global.md` |
 | Claude's subagent model choices | `claude-rules/models.md` |
+| Personal workflows reused across projects | `skills/<skill-name>/SKILL.md` |
 | Commands, conventions, or exceptions for one project | That project's `AGENTS.md` |
 
 The local checkout is `~/.config/agent-policies`. Start with
@@ -49,6 +50,21 @@ Claude reads the shared source directly, plus its model-specific rule. Codex and
 Gemini receive complete generated files. Cursor receives a generated rule with
 `alwaysApply: true`.
 The installer also enables Gemini discovery of `AGENTS.md` alongside `GEMINI.md`.
+
+Personal skills live in `skills/<skill-name>/SKILL.md`. The installer links each
+skill folder individually into these user-level discovery locations:
+
+| Skill location | Agents |
+| --- | --- |
+| `~/.agents/skills/<skill-name>` | Codex, Gemini CLI, Cursor |
+| `~/.claude/skills/<skill-name>` | Claude Code |
+
+These locations follow the documented discovery paths for
+[Codex](https://learn.chatgpt.com/docs/build-skills#where-codex-loads-local-skills),
+[Gemini CLI](https://geminicli.com/docs/cli/skills/#discovery-tiers),
+[Cursor](https://cursor.com/help/customization/skills), and
+[Claude Code](https://code.claude.com/docs/en/skills#choose-where-skills-load).
+Agent-specific tools or metadata inside a skill still need to work in each agent.
 
 Project instructions add commands, domain conventions, and exceptions. Keep them
 self-contained so collaborators and cloud sessions can use the repository without
@@ -91,7 +107,9 @@ python3 scripts/install.py
 
 The installer:
 
-- Creates the five links listed above.
+- Creates the five policy links and the individual skill links listed above.
+- Preserves unrelated installed skills. A same-named entry is backed up before
+  being replaced; each archived directory has a unique path in the manifest.
 - Replaces existing entries after backing them up under
   `~/.local/state/agent-policies/backups/<timestamp>/`.
 - Archives an existing Claude rules directory intact, including its Git history.
@@ -151,10 +169,38 @@ python3 scripts/render.py --check
 ```
 
 Reload your agent sessions. There is no need to reinstall the links for ordinary
-policy changes. If the installer or link structure changes, review those changes
-before running `python3 scripts/install.py` again. If Git reports local changes,
-review and commit or otherwise preserve them before pulling; do not reset them
-away just to update.
+policy changes or edits inside an already-linked skill. Rerun the installer after
+adding or renaming a skill. If the installer or link structure changes, review
+those changes before running `python3 scripts/install.py` again. If Git reports
+local changes, review and commit or otherwise preserve them before pulling; do
+not reset them away just to update.
+
+## Add a personal skill
+
+Copy `skills/example-workflow/` to `skills/<skill-name>/`. Update the `name` and
+`description` in its YAML frontmatter, then replace the body with the workflow.
+The description tells an agent when to select the skill. Keep standing rules in
+`global.md` and application-specific workflows in that application's repository.
+
+The included example only reports its loaded file path when asked to test
+`example-workflow`; it does not change files. In Codex, invoke it with
+`$example-workflow`; in Claude Code, use `/example-workflow`.
+
+```sh
+python3 scripts/render.py --check
+python3 scripts/install.py
+```
+
+Skills are linked directly, so they do not need rendering. Restart or reload the
+agent's skills after installation. Renaming or deleting a source skill does not
+remove its old installed links; remove those specific links manually. The
+installer does not prune other skills or replace the whole skills directory.
+
+To test the installer without changing your home directory:
+
+```sh
+python3 -m unittest discover -s tests -v
+```
 
 ## Set up a project
 
@@ -187,9 +233,14 @@ agent-policies/
 │   ├── codex.md
 │   ├── gemini.md
 │   └── cursor.mdc
+├── skills/
+│   └── example-workflow/
+│       └── SKILL.md             # Starter personal skill
 ├── scripts/
 │   ├── render.py               # Build entry points; --check detects drift
 │   └── install.py              # Back up existing entries and install links
+├── tests/
+│   └── test_install.py          # Installer checks in temporary directories
 └── README.md
 ```
 

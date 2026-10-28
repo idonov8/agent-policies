@@ -186,6 +186,11 @@ The included example only reports its loaded file path when asked to test
 `example-workflow`; it does not change files. In Codex, invoke it with
 `$example-workflow`; in Claude Code, use `/example-workflow`.
 
+Invoke `$sol-review` in Codex or `/sol-review` in Claude Code to request a
+GPT-6.1 Sol PR review and address its findings before handing the PR back to you.
+This workflow runs only when requested; Codex automatic invocation is disabled
+in the skill's `agents/openai.yaml`.
+
 ```sh
 python3 scripts/render.py --check
 python3 scripts/install.py
@@ -234,8 +239,11 @@ agent-policies/
 │   ├── gemini.md
 │   └── cursor.mdc
 ├── skills/
-│   └── example-workflow/
-│       └── SKILL.md             # Starter personal skill
+│   ├── example-workflow/
+│   │   └── SKILL.md             # Starter personal skill
+│   └── sol-review/
+│       ├── SKILL.md             # Explicitly requested Sol PR review
+│       └── agents/openai.yaml   # Disable automatic invocation in Codex
 ├── scripts/
 │   ├── render.py               # Build entry points; --check detects drift
 │   └── install.py              # Back up existing entries and install links

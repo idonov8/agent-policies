@@ -101,9 +101,15 @@ Read `global.md` and `claude-rules/models.md` before installing: these are perso
 preferences, including publishing and commit behavior.
 
 ```sh
+python3 scripts/render.py
 python3 scripts/render.py --check
 python3 scripts/install.py
 ```
+
+`render.py` regenerates the files in `agents/` from `global.md`. With `--check`,
+it only verifies that those files are current; it does not update them. The
+installer runs the same check and stops if they are stale. If you see
+`Stale generated files`, run `python3 scripts/render.py` before trying again.
 
 The installer:
 
@@ -155,8 +161,10 @@ application deployment is part of this repository's update workflow.
 
 Symlinks point at local files, so committing or pushing is not required for local
 use. Claude sees edits to `global.md` directly on disk; the other agents see shared
-policy changes after rendering. Existing sessions may retain old context until
-reloaded. Pushing synchronizes the reviewed policy to GitHub for other machines.
+policy changes after rendering. For ordinary policy edits, run
+`python3 scripts/render.py` and reload your agent sessions; there is no need to
+rerun the installer. Existing sessions may retain old context until reloaded.
+Pushing synchronizes the reviewed policy to GitHub for other machines.
 
 ## Update another machine
 

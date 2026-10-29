@@ -30,8 +30,7 @@ framework details, and domain conventions in that project's AGENTS.md.
   locally in my checkout. Work on a branch, not the default branch. Split
   independent changes into separate PRs when that makes review easier.
 - When opening a PR, the top part of the description should explain the decisions that you took, and the intents behind them.
-- If a PR is very small (under 20 changed lines) and you are confident in it,
-  merge it yourself once tests pass. Otherwise leave it for my review.
+- Only for reposotories on GitHub under Ido's username (idonov8): If a PR is very small (under 20 changed lines) and you are confident in it, merge it yourself once tests pass. Otherwise leave it for my review.
 - Sign every PR you open with: Opened by <model_name> for Ido. E.g: Opened by Opus 5.5 for Ido.
 
 ## Comments and tests

@@ -27,6 +27,7 @@ framework details, and domain conventions in that project's AGENTS.md.
 - Always open a PR when a feature or fix is finished, including when working
   locally in my checkout. Work on a branch, not the default branch. Split
   independent changes into separate PRs when that makes review easier.
+- Always start your PR description with "AI explenation" "<details>" and put all the description in it. Above the description you can put one sentense about what the PR is doing. e.g: "This PR improves performance by 60% by improving efficiency in worker proccesses"
 - When opening a PR, the top part of the description should explain the decisions that you took, and the intents behind them.
 - Only for reposotories on GitHub under Ido's username (idonov8): If a PR is very small (under 20 changed lines) and you are confident in it, merge it yourself once tests pass. Otherwise leave it for my review.
 - Sign every PR you open with: Opened by <model_name> for Ido. E.g: Opened by Opus 5.5 for Ido.

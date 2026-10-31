@@ -1,11 +1,11 @@
 ---
 name: free-disk-space
-description: Free up disk space on Ido's Mac. Use when asked to free up space, clean the disk, or find what is filling it, or when a full disk is blocking work. Surveys usage, then clears regenerable caches and duplicate node_modules across git worktrees once the user approves.
+description: Free up disk space on Ido's Mac. Use when asked to free up space, clean the disk, or find what is filling it, or when a full disk is blocking work. Surveys usage, proposes regenerable caches and duplicate node_modules to delete with the space each frees, and deletes only what Ido approves.
 ---
 
 # Free disk space
 
-Survey first and delete nothing until the user picks what to clean.
+Survey, propose a deletion plan, and delete nothing until Ido approves it.
 
 ## 1. Survey
 
@@ -13,59 +13,51 @@ Run `scripts/survey.sh`. It is read-only and prints free space, the largest
 folders, Docker usage, dev caches, installers in Downloads, and `node_modules`
 totals grouped by git repository. Drill into anything large it surfaces.
 
-Present a table of where the space goes. Then ask with one multi-select
-question, giving each option's estimated size and noting that it regenerates.
+## 2. Propose a deletion plan
 
-## 2. What to offer
+Show a table of where the space goes, then a plan with one row per item:
+
+| What will be deleted | Why it is safe | Space freed |
+| --- | --- | --- |
+
+Name exact paths or commands, not categories ("5 old iOS DeviceSupport
+versions, 26.1 to 27.0", not "Xcode stuff"). Measure each size before
+proposing it. Give the total at the bottom.
+
+Then ask for approval with one multi-select question, one option per row.
+Delete only the rows Ido selects. If anything new turns up during cleanup,
+add it to the plan and ask again.
+
+## 3. What to propose
 
 These were approved before and regenerate on their own:
 
 - **Docker:** `docker container prune -f`, `docker image prune -a -f`,
-  `docker builder prune -a -f`. Keep volumes: they can hold database data.
-  Mention unused volumes separately and leave them.
+  `docker builder prune -a -f`. Images download again when needed. Keep
+  volumes: they can hold database data. Report unused volumes separately.
 - **Old iOS DeviceSupport:** in `~/Library/Developer/Xcode/iOS DeviceSupport`,
-  keep the newest version and remove the rest.
+  keep the newest version. Xcode rebuilds older ones when a device on that
+  iOS is connected.
 - **Dev caches:** `~/.cache/uv`, `~/.cache/puppeteer`,
   `~/Library/Caches/ms-playwright`, `~/Library/Caches/pip`, Xcode
   `DerivedData`, `npm cache clean --force`, `brew cleanup -s --prune=all`.
+  Each refills on next use, at the cost of a slower first run.
 - **Installers:** move `.dmg` files in `~/Downloads` to `~/.Trash`; don't
-  delete them. The user empties the Trash.
+  delete them. The space returns once Ido empties the Trash.
+- **Duplicate `node_modules` across worktrees:** agent worktrees each carry a
+  full copy. Per repo, keep the copy in the main checkout and in worktrees
+  with commits in the last day or two, and propose deleting the rest.
+  `npm install` restores them. Leave a repo alone if all its checkouts are
+  active.
 
-Never offer to delete personal media or documents (Movies, Pictures,
-Documents, Downloads exports). Report their size and suggest moving them to
-an external drive.
+Never propose deleting personal media or documents (Movies, Pictures,
+Documents, Downloads exports), or removing worktrees themselves. Report
+large personal folders and suggest moving them to an external drive.
 
-## 3. Duplicate node_modules across worktrees
-
-Agent worktrees each carry a full `node_modules`; this is often the largest
-dev cost. Per repo:
-
-- Keep `node_modules` in the main checkout and in worktrees with commits in
-  the last day or two. Leave a repo alone if all its checkouts are active.
-- Delete `node_modules` in the older worktrees. `npm install` restores it.
-
-## 4. Stale worktrees with uncommitted changes
-
-Agent worktrees often share a branch. When one moves the branch forward, the
-others show its newer files as "modified" without holding any new work.
-Before calling such a worktree unfinished, run
-`scripts/stale-worktrees.sh <repo>`. For each dirty worktree it reports how
-many changed files match a blob already in git history, and lists the rest.
-
-- If every file is in history, the worktree is stale.
-- For files listed as new, diff them against `HEAD` and `origin/main`. If the
-  diff only removes code that `main` has, the worktree is still stale.
-  Anything that adds code is real work: show it to the user and keep it.
-
-Removing stale worktrees with `git worktree remove --force` keeps their
-branches. The permission classifier may block it as irreversible. If it
-does, give the user the exact command to run and verify afterwards with
-`git worktree list`. Never touch the main checkout's own changes.
-
-## 5. Report
+## 4. Report
 
 Measure free space before and after with `df -h /System/Volumes/Data`.
-Report what was freed per category, what was kept and why, and what is left
-for the user (emptying the Trash, large personal folders). If duplicate
+Report what was freed per item, what was kept and why, and what is left for
+Ido (emptying the Trash, large personal folders). If duplicate
 `node_modules` were large, suggest switching those repos to pnpm, which
 shares one package store across worktrees.

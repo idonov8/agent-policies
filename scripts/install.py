@@ -67,4 +67,6 @@ if context.get('fileName') != updated:
     temp.write_text(json.dumps(config, indent=2) + '\n')
     temp.chmod(mode)
     os.replace(temp, settings)
+if (ROOT / '.git').exists():
+    subprocess.run(['git', '-C', str(ROOT), 'config', 'core.hooksPath', '.githooks'], check=True)
 print('Installed. Private backups: ' + str(backup))

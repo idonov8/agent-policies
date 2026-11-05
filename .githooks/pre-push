@@ -1,5 +1,9 @@
 #!/bin/sh
 set -e
 cd "$(git rev-parse --show-toplevel)"
-python3 scripts/render.py --check
+# Check the committed tree, not the working copy, so stale agents/ can't be pushed.
+tree=$(mktemp -d)
+trap 'rm -rf "$tree"' EXIT
+git archive HEAD | tar -x -C "$tree"
+python3 "$tree/scripts/render.py" --check
 python3 -m unittest discover -s tests -q

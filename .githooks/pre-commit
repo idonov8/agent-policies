@@ -1,0 +1,16 @@
+#!/bin/sh
+# Keep generated agent entry points in sync with global.md on every commit.
+set -e
+cd "$(git rev-parse --show-toplevel)"
+
+if ! git diff --quiet -- global.md; then
+    echo "pre-commit: global.md has unstaged changes; stage or stash them so agents/ matches what is committed." >&2
+    exit 1
+fi
+
+python3 scripts/render.py >/dev/null
+git add agents
+
+if git diff --cached --name-only --diff-filter=AR | grep -q '^skills/.*/SKILL.md$'; then
+    python3 scripts/install.py
+fi

@@ -101,9 +101,15 @@ Read `global.md` and `claude-rules/models.md` before installing: these are perso
 preferences, including publishing and commit behavior.
 
 ```sh
+python3 scripts/render.py
 python3 scripts/render.py --check
 python3 scripts/install.py
 ```
+
+`render.py` regenerates the files in `agents/` from `global.md`. With `--check`,
+it only verifies that those files are current; it does not update them. The
+installer runs the same check and stops if they are stale. If you see
+`Stale generated files`, run `python3 scripts/render.py` before trying again.
 
 The installer:
 
@@ -138,25 +144,33 @@ instructions. This checkout does not replace those settings.
 
 ```sh
 cd ~/.config/agent-policies
-# Edit global.md or claude-rules/models.md in your editor.
-python3 scripts/render.py
-python3 scripts/render.py --check
-git diff
-# Review new files as well with git status.
-git status --short
-git add global.md claude-rules agents
+# Edit global.md, claude-rules/models.md, or a skill in your editor.
+git add global.md claude-rules skills
 git commit -m "Update shared agent policies"
 git push origin main
 ```
 
-Commit source and generated files together. If you change the README, installer,
-or integration sources, review and stage those specific files too. No website or
+The installer sets `core.hooksPath` to `.githooks/`, so Git runs the routine steps:
+
+| Hook | What it does |
+| --- | --- |
+| `pre-commit` | Renders `agents/` from `global.md` and stages the result. Runs the installer when the commit adds or renames a skill. Refuses to commit while `global.md` has unstaged edits, so the generated files match what is committed. |
+| `pre-push` | Runs `render.py --check` and the installer tests; a failure blocks the push. |
+| `post-merge` | After `git pull`, re-renders and runs the installer if new skills arrived. |
+
+To run them in an existing checkout before reinstalling, use
+`git config core.hooksPath .githooks`. Bypass a hook once with `--no-verify`.
+
+If you change the README, installer, or integration sources, review and stage
+those specific files too. No website or
 application deployment is part of this repository's update workflow.
 
 Symlinks point at local files, so committing or pushing is not required for local
 use. Claude sees edits to `global.md` directly on disk; the other agents see shared
-policy changes after rendering. Existing sessions may retain old context until
-reloaded. Pushing synchronizes the reviewed policy to GitHub for other machines.
+policy changes after rendering. For ordinary policy edits, run
+`python3 scripts/render.py` and reload your agent sessions; there is no need to
+rerun the installer. Existing sessions may retain old context until reloaded.
+Pushing synchronizes the reviewed policy to GitHub for other machines.
 
 ## Update another machine
 
@@ -165,13 +179,10 @@ With a clean checkout:
 ```sh
 cd ~/.config/agent-policies
 git pull --ff-only
-python3 scripts/render.py --check
 ```
 
-Reload your agent sessions. There is no need to reinstall the links for ordinary
-policy changes or edits inside an already-linked skill. Rerun the installer after
-adding or renaming a skill. If the installer or link structure changes, review
-those changes before running `python3 scripts/install.py` again. If Git reports
+Reload your agent sessions. The `post-merge` hook renders and links new skills.
+If the installer or link structure changes, review those changes before running `python3 scripts/install.py` again. If Git reports
 local changes, review and commit or otherwise preserve them before pulling; do
 not reset them away just to update.
 
@@ -235,6 +246,7 @@ agent-policies/
 ├── skills/                     # Reusable personal workflows
 │   └── <skill-name>/
 │       └── SKILL.md             # Workflow instructions
+├── .githooks/                 # Render, test, and install automatically
 ├── scripts/
 │   ├── render.py               # Build entry points; --check detects drift
 │   └── install.py              # Back up existing entries and install links

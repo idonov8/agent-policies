@@ -186,6 +186,25 @@ If the installer or link structure changes, review those changes before running 
 local changes, review and commit or otherwise preserve them before pulling; do
 not reset them away just to update.
 
+## Claude Code cloud sessions
+
+Cloud sessions start on a fresh VM with only the target repository cloned, so
+the local links above are not there. Add this as the setup script of the
+claude.ai/code environment:
+
+```sh
+git clone --depth 1 https://github.com/idonov8/agent-policies ~/.config/agent-policies \
+  && python3 ~/.config/agent-policies/scripts/install.py
+```
+
+The environment's network access must allow github.com. To check that it works,
+run `ls -la ~/.claude/CLAUDE.md ~/.claude/skills` in a cloud session. The links
+should point into `~/.config/agent-policies`.
+
+The setup script runs when the environment is prepared, and the environment may
+be cached. A policy change you push might not reach cloud sessions until the
+environment is rebuilt.
+
 ## Add a personal skill
 
 Copy `skills/example-workflow/` to `skills/<skill-name>/`. Update the `name` and

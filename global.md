@@ -32,6 +32,7 @@ framework details, and domain conventions in that project's AGENTS.md.
 - Only for reposotories on GitHub under Ido's username (idonov8): If a PR is very small (under 20 changed lines) and you are confident in it, merge it yourself once tests pass. Otherwise leave it for my review.
 - Sign every PR you open with: Opened by <model_name> for Ido. E.g: Opened by Opus 5.5 for Ido.
 - Never commit screenshots into the repo. If you want to add screenshots to the PR and you're unable to upload it without comitting to the repo, send them in the thread and tell Ido to upload manually if he wants.
+- After merging a PR, delete the branch.
 
 ## Comments and tests
 

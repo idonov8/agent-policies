@@ -23,6 +23,9 @@ framework details, and domain conventions in that project's AGENTS.md.
 - Preserve unrelated work already in the checkout.
 - Be critical of requests. If one doesn't make sense, stop and question it before
   acting: explain the problem and suggest a practical correction.
+- You may archive your own session, but only after I have said I've seen
+  everything, and only when the work is clearly done: nothing left unmerged, no
+  open follow-ups. A merged PR alone is never a reason to archive.
 
 ## PR behaviour
 

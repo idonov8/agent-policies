@@ -2,7 +2,8 @@
 """Install symlinks with backups; preserve credentials and hooks."""
 from pathlib import Path
 from datetime import datetime, timezone
-import argparse, json, os, shutil, subprocess
+import argparse, json, os, shutil, subprocess, sys, tarfile
+from sync_adhd_skill import install_schedule, refresh
 ROOT = Path(__file__).resolve().parents[1]
 parser = argparse.ArgumentParser()
 parser.add_argument("--home", type=Path, default=Path.home(), help="Explicit installation home (use a temporary directory to test).")
@@ -51,6 +52,19 @@ for skill_file in sorted((ROOT / 'skills').glob('*/SKILL.md')):
         continue
     for directory in ('.agents/skills', '.claude/skills'):
         link(HOME / directory / skill.name, skill)
+try:
+    adhd_skill = refresh(HOME)
+except (OSError, ValueError, KeyError, tarfile.TarError, subprocess.SubprocessError) as error:
+    print(f'Could not refresh i-have-adhd: {error}', file=sys.stderr)
+    adhd_skill = HOME / '.local/share/i-have-adhd/current'
+if (adhd_skill / 'SKILL.md').is_file():
+    for directory in ('.agents/skills', '.claude/skills'):
+        link(HOME / directory / 'i-have-adhd', adhd_skill)
+    if sys.platform == 'darwin' and HOME == Path.home().resolve():
+        try:
+            install_schedule(HOME)
+        except (OSError, subprocess.SubprocessError) as error:
+            print(f'Could not schedule i-have-adhd updates: {error}', file=sys.stderr)
 settings = HOME / '.gemini/settings.json'
 config = json.loads(settings.read_text()) if settings.exists() else {}
 context = config.setdefault('context', {})

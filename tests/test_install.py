@@ -1,10 +1,12 @@
 """Exercise installation and backups without writing to the real home directory."""
 from pathlib import Path
+import io
 import json
 import os
 import shutil
 import subprocess
 import sys
+import tarfile
 import tempfile
 import unittest
 
@@ -20,6 +22,15 @@ class InstallTests(unittest.TestCase):
         self.repo = Path(temporary.name).resolve() / 'repo'
         self.home = Path(temporary.name).resolve() / 'home'
         self.home.mkdir()
+        bin_dir = self.home / 'bin'
+        bin_dir.mkdir()
+        curl = bin_dir / 'curl'
+        curl.write_text('#!/bin/sh\ncat "$SKILL_ARCHIVE"\n')
+        curl.chmod(0o755)
+        self.archive = self.home / 'upstream.tar.gz'
+        self.env = {**os.environ, 'PATH': f'{bin_dir}{os.pathsep}{os.environ["PATH"]}',
+                    'SKILL_ARCHIVE': str(self.archive)}
+        self.write_upstream('initial')
         self.repo.mkdir()
         for directory in ('scripts', 'claude-rules', 'skills'):
             shutil.copytree(ROOT / directory, self.repo / directory)
@@ -30,11 +41,22 @@ class InstallTests(unittest.TestCase):
             check=True, capture_output=True, text=True,
         )
 
+    def write_upstream(self, version):
+        with tarfile.open(self.archive, 'w:gz') as archive:
+            for name, data in (
+                ('SKILL.md', f'---\nname: i-have-adhd\n---\n{version}\n'.encode()),
+                ('agents/openai.yaml', b'policy: {allow_implicit_invocation: false}\n'),
+                ('agents/gemini.toml', b'description = "fixture"\n'),
+            ):
+                member = tarfile.TarInfo(f'i-have-adhd-main/skills/i-have-adhd/{name}')
+                member.size = len(data)
+                archive.addfile(member, io.BytesIO(data))
+
     def install(self):
         result = subprocess.run(
             [sys.executable, str(self.repo / 'scripts/install.py'),
              '--home', str(self.home)],
-            capture_output=True, text=True,
+            capture_output=True, text=True, env=self.env,
         )
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         backup = Path(result.stdout.split('Private backups: ')[1].strip())
@@ -82,6 +104,22 @@ class InstallTests(unittest.TestCase):
         self.assertEqual(json.loads(settings.read_text()), expected)
         self.assertEqual(auth.read_text(), 'existing credentials')
         self.assertEqual(self.install(), [])
+
+    def test_upstream_skill_refreshes_and_survives_failed_download(self):
+        self.install()
+        paths = [self.home / directory / 'i-have-adhd' for directory in SKILL_PATHS]
+        original = paths[0].resolve()
+
+        self.write_upstream('updated')
+        self.install()
+        for path in paths:
+            self.assertNotEqual(path.resolve(), original)
+            self.assertIn('updated', (path / 'SKILL.md').read_text())
+
+        self.archive.unlink()
+        self.install()
+        for path in paths:
+            self.assertIn('updated', (path / 'SKILL.md').read_text())
 
     def test_same_named_directories_have_separate_recoverable_backups(self):
         originals = {}

@@ -122,6 +122,13 @@ The installer:
 - Preserves Gemini's other settings, credentials, and hooks while adding
   `AGENTS.md` to its context filenames.
 
+It also installs [i-have-adhd](https://github.com/ayghri/i-have-adhd/tree/main/skills/i-have-adhd)
+from upstream `main` into the same global skill locations. On macOS, a user
+LaunchAgent refreshes it daily at 12:15 local time. On Linux, rerun the installer
+to refresh it. If GitHub is unavailable, installation continues using any
+previously synced copy. In a new session, use `$i-have-adhd` in Codex or
+`/i-have-adhd` in Claude Code.
+
 It prints the backup path. `manifest.json` records which entries existed and where
 their originals were saved. Keep those backups outside Git. To restore, compare
 current entries with the manifest, preserve any later edits, then restore each

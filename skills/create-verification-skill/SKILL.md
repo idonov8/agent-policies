@@ -43,8 +43,8 @@ Run its own instructions end to end once: launch, doctor, drive ONE mapped featu
 
 ## 5. Offer the maintenance loop
 
-Tell the user the feature map needs upkeep as the app changes. If a `maintain-verification-skill` is installed, point them at it. Suggest a cadence only if they ask.
+Point the user at `/maintain-verification-skill` (`$maintain-verification-skill` in Codex) for keeping the map honest as the app changes. Suggest a cadence only if they ask.
 
 ---
 
-Adapted from [cursor/plugins `pstack/skills/create-verification-skill`](https://github.com/cursor/plugins/tree/c49b37a2c0e7bede60a71ad7322e3f12c337a3da/pstack/skills/create-verification-skill) (MIT, see `LICENSE`). Changes: agent-neutral skill location; the maintenance pointer is conditional.
+Adapted from [cursor/plugins `pstack/skills/create-verification-skill`](https://github.com/cursor/plugins/tree/c49b37a2c0e7bede60a71ad7322e3f12c337a3da/pstack/skills/create-verification-skill) (MIT, see `LICENSE`). Changes: agent-neutral skill location.
